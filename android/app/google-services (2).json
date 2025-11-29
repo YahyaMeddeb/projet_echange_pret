@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "770271494246",
+    "project_id": "echangepretbiens",
+    "storage_bucket": "echangepretbiens.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770271494246:android:7aa99559467aa8014aada7",
+        "android_client_info": {
+          "package_name": "com.example.echange_pret_biens"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlXkxZm6DFbOat89VOHSFU4G5xSi-WCxA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
