@@ -1,10 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../controllers/item_controller.dart';
 import '../../models/item.dart';
 
-/// Vue pour ajouter un objet : elle utilise les Widgets (formulaire)
-/// et appelle le Controller pour la logique.
+/// -------------------------
+/// PAGE D'ACCUEIL (HomePage)
+/// -------------------------
+class HomePage extends StatelessWidget {
+  const HomePage({super.key}); // ✅ constructeur const
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<ItemController>();
+    final items = controller.items;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mes objets'),
+      ),
+      body: controller.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : items.isEmpty
+              ? const Center(
+                  child: Text('Aucun objet.\nAjoute un objet avec le +'),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(item.title),
+                        subtitle: Text(item.description),
+                        trailing: Text('${item.pricePerDay} €/jour'),
+                      ),
+                    );
+                  },
+                ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const AddItemPage(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+/// -------------------------
+/// PAGE D'AJOUT (AddItemPage)
+/// -------------------------
 class AddItemPage extends StatefulWidget {
   const AddItemPage({super.key});
 
@@ -55,8 +106,10 @@ class _AddItemPageState extends State<AddItemPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (!_formKey.currentState!.validate()) return;
+
                     final price =
                         double.tryParse(_priceController.text.trim()) ?? 0;
+
                     final item = Item(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       ownerId: 'demo',
@@ -64,12 +117,13 @@ class _AddItemPageState extends State<AddItemPage> {
                       description: _descriptionController.text.trim(),
                       pricePerDay: price,
                     );
+
                     controller.addItem(item);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Enregistrer'),
                 ),
-              )
+              ),
             ],
           ),
         ),

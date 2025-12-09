@@ -26,4 +26,26 @@ class ItemController extends ChangeNotifier {
         description: 'Perceuse électrique 500W',
         pricePerDay: 10,
       ),
-     
+      Item(
+        id: '2',
+        ownerId: 'u2',
+        title: 'Vélo',
+        description: 'Vélo de route taille M',
+        pricePerDay: 5,
+      ),
+    ]);
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void addItem(Item item) {
+    _items.add(item);
+    notifyListeners();
+  }
+
+  void removeItem(String id) {
+    _items.removeWhere((item) => item.id == id);
+    notifyListeners();
+  }
+}
