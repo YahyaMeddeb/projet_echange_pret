@@ -1,51 +1,76 @@
 import 'package:flutter/material.dart';
-import '../models/item.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-/// C = Controller dans le pattern MVC
-/// - gère la liste d'objets
-/// - contient la logique (ajout, suppression, filtre...)
+import '../models/item.dart';
+import 'package:echange_pret_biens/views/add_item_page.dart';
+
 class ItemController extends ChangeNotifier {
+  final add_item_page _service = add_item_page();
   final List<Item> _items = [];
   bool _isLoading = false;
 
   List<Item> get items => List.unmodifiable(_items);
   bool get isLoading => _isLoading;
 
+  String? get _uid => FirebaseAuth.instance.currentUser?.uid;
+
   Future<void> loadItems() async {
     _isLoading = true;
     notifyListeners();
 
-    // Ici on simule une source de données (Firebase, API...)
-    await Future.delayed(const Duration(milliseconds: 500));
-    _items.clear();
-    _items.addAll([
-      Item(
-        id: '1',
-        ownerId: 'u1',
-        title: 'Perceuse',
-        description: 'Perceuse électrique 500W',
-        pricePerDay: 10,
-      ),
-      Item(
-        id: '2',
-        ownerId: 'u2',
-        title: 'Vélo',
-        description: 'Vélo de route taille M',
-        pricePerDay: 5,
-      ),
-    ]);
+    try {
+      final uid = _uid;
+      // إذا تريد فقط Items متاع المستخدم:
+      final data = await _service.fetchItems(ownerId: uid);
+
+      _items
+        ..clear()
+        ..addAll(data);
+    } catch (e) {
+      debugPrint('loadItems error: $e');
+    }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  void addItem(Item item) {
-    _items.add(item);
+  Future<void> addItemFromForm({
+    required String title,
+    required String description,
+    required double pricePerDay,
+  }) async {
+    final uid = _uid;
+    if (uid == null) {
+      throw Exception('Utilisateur non connecté');
+    }
+
+    final item = Item(
+      id: '', // Firestore va générer l'id
+      ownerId: uid,
+      title: title,
+      description: description,
+      pricePerDay: pricePerDay,
+    );
+
+    final newId = await _service.addItem(item);
+
+    // Option 1: ajouter localement
+    _items.insert(
+      0,
+      Item(
+        id: newId,
+        ownerId: uid,
+        title: title,
+        description: description,
+        pricePerDay: pricePerDay,
+      ),
+    );
     notifyListeners();
   }
 
-  void removeItem(String id) {
-    _items.removeWhere((item) => item.id == id);
+  Future<void> removeItem(String id) async {
+    await _service.deleteItem(id);
+    _items.removeWhere((x) => x.id == id);
     notifyListeners();
   }
 }

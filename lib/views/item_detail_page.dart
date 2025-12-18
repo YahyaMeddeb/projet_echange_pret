@@ -21,7 +21,7 @@ class ItemDetailPage extends StatelessWidget {
           children: [
             Text(item.description, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 12),
-            Text('Prix: ${item.pricePerDay} €/jour'),
+            Text('Prix: ${item.pricePerDay} €'),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
